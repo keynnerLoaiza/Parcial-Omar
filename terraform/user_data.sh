@@ -8,7 +8,16 @@ echo "==============================================="
 
 # 1. Actualizar el sistema e instalar dependencias básicas
 sudo dnf update -y
-sudo dnf install -y nodejs npm unzip git
+sudo dnf install -y unzip git
+
+# Instalar Node.js 20 via nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+export NVM_DIR="/root/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install 20
+nvm use 20
+nvm alias default 20
+export PATH="$NVM_DIR/versions/node/$(nvm version)/bin:$PATH"
 
 # 2. Clonar el repositorio público directamente desde GitHub
 echo "[DEPLOYS] Clonando repositorio desde GitHub: ${github_repo_url}..."
@@ -17,7 +26,7 @@ git clone ${github_repo_url} /opt/app
 if [ -d /opt/app ]; then
   cd /opt/app
   echo "[DEPLOYS] Repositorio clonado correctamente. Instalando todas las dependencias y compilando..."
-  npm install
+  npm install --include=dev
   npm run build
 else
   echo "[WARNING] No se pudo clonar el repositorio. Creando aplicación temporal de fallback..."
@@ -61,9 +70,9 @@ After=network.target
 Type=simple
 User=ec2-user
 WorkingDirectory=/opt/app
-ExecStart=/usr/bin/node dist/app.js
-Restart=on-failure
+ExecStart=/root/.nvm/versions/node/v20/bin/node dist/app.js
 Environment=NODE_ENV=production
+Environment=PATH=/root/.nvm/versions/node/v20/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 LimitNOFILE=65536
 
 [Install]
