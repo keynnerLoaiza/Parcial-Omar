@@ -1,0 +1,71 @@
+# Pipeline de CI/CD - GitHub Actions
+# Examen Final AWS, Terraform y CI/CD
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # Etapa 1: Validación, Linting y Pruebas Unitarias
+  # ────────────────────────────────────────────────────────────────────────────
+  validate_and_test:
+    name: Validar y Probar Código
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar Código del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependencias
+        run: npm ci
+
+      - name: Validar Estilo de Código (Linter)
+        run: npm run lint
+
+      - name: Ejecutar Pruebas Automatizadas (Jest)
+        run: npm run test
+
+      - name: Validar Compilación TypeScript (Build)
+        run: npm run build
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Etapa 2: Despliegue en AWS (Solo tras éxito en main)
+  # ────────────────────────────────────────────────────────────────────────────
+  deploy_to_aws:
+    name: Desplegar en AWS
+    needs: validate_and_test
+    runs-on: ubuntu-latest
+    # Solo ejecutar el despliegue cuando se haga push en la rama main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Descargar Código del Repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Credenciales de AWS (AWS Academy)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Para AWS Academy se requiere Access Key, Secret Key y Session Token
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Disparar Actualización Inmutable en Auto Scaling (Instance Refresh)
+        # Fuerza a las instancias EC2 del ASG a reiniciarse de forma escalonada (Rolling Update)
+        # Al arrancar, las nuevas instancias clonarán la versión actualizada directamente de GitHub.
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name ${{ secrets.AWS_ASG_NAME }} \
+            --preferences '{"MinHealthyPercentage": 50}'

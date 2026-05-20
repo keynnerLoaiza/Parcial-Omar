@@ -1,0 +1,29 @@
+# ==============================================================================
+# Variables de Configuración de Terraform (Ejemplo)
+# Copia este archivo como 'terraform.tfvars' y modifica los valores sensibles
+# ==============================================================================
+
+# Región de AWS a desplegar (AWS Academy Learner Lab utiliza us-east-1 por defecto)
+aws_region   = "us-east-1"
+
+# Identificador del ambiente
+environment  = "production"
+
+# Nombre del proyecto para etiquetar todos los recursos
+project_name = "parcial-omar"
+
+# Tipo de instancia EC2 para la aplicación
+instance_type = "t3.micro"
+
+# Nombre de la Base de Datos PostgreSQL
+db_name      = "appdb"
+
+# Usuario administrador de la Base de Datos
+db_user      = "dbadmin"
+
+# Contraseña de la base de datos (DEBE cambiar esta contraseña por seguridad y no subirla a GitHub)
+# Requisitos: Mínimo 8 caracteres, letras, números y algún símbolo permitido (evitar / o @)
+db_password  = "CambiaEstaContrasenaSegura2026!"
+
+# URL pública de tu repositorio de GitHub para clonar en EC2 (debe ser público para que EC2 pueda clonar sin SSH keys)
+github_repo_url = "https://github.com/keynnerLoaiza/Parcial-Omar.git"
