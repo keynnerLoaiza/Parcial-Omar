@@ -10,14 +10,14 @@ echo "==============================================="
 sudo dnf update -y
 sudo dnf install -y unzip git
 
-# Instalar Node.js 20 via nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-export NVM_DIR="/root/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm install 20
-nvm use 20
-nvm alias default 20
-export PATH="$NVM_DIR/versions/node/$(nvm version)/bin:$PATH"
+# Instalar Node.js 20 de forma global y nativa en Amazon Linux 2023
+echo "[DEPLOYS] Instalando Node.js 20..."
+sudo dnf install -y nodejs20
+
+# Crear symlinks globales para asegurar que 'node' y 'npm' estén disponibles para todos los usuarios
+sudo ln -sf /usr/bin/node-20 /usr/bin/node
+sudo ln -sf /usr/bin/npm-20 /usr/bin/npm
+
 
 # 2. Clonar el repositorio público directamente desde GitHub
 echo "[DEPLOYS] Clonando repositorio desde GitHub: ${github_repo_url}..."
@@ -70,9 +70,9 @@ After=network.target
 Type=simple
 User=ec2-user
 WorkingDirectory=/opt/app
-ExecStart=/root/.nvm/versions/node/v20/bin/node dist/app.js
+ExecStart=/usr/bin/node dist/app.js
 Environment=NODE_ENV=production
-Environment=PATH=/root/.nvm/versions/node/v20/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/bin
 LimitNOFILE=65536
 
 [Install]
