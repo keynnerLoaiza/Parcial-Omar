@@ -27,6 +27,7 @@ if [ -d /opt/app ]; then
   cd /opt/app
   echo "[DEPLOYS] Repositorio clonado correctamente. Instalando todas las dependencias y compilando..."
   npm install --include=dev
+  chmod -R 755 node_modules/.bin/
   npm run build
 else
   echo "[WARNING] No se pudo clonar el repositorio. Creando aplicación temporal de fallback..."
