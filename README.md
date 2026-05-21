@@ -9,6 +9,7 @@ Este repositorio contiene la solución completa para el examen final de Infraest
 La infraestructura diseñada implementa las mejores prácticas del marco de buena arquitectura de AWS (*AWS Well-Architected Framework*), enfocándose en **Seguridad**, **Alta Disponibilidad** y **Resiliencia**.
 
 ```text
+Simplificado
                                   [ TRÁFICO DE USUARIOS ]
                                              │
                                              ▼
